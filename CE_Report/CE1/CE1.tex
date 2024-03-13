@@ -362,6 +362,66 @@ inf norm =
 We used the code \mcode{norm(Gs, inf)} and got the $\infty$-norm as \mcode{1.1081}.~\\~\\
 It is equal to the result we calculated in 1.2.2.2, and the relative error between it and the result we approximately calculated in 1.2.2.1 is $E=\frac{|1.1083-1.1081|}{1.1081}\times 100\%=0.010\%$, which is also acceptable.
 
+\subsection*{1.3 Uncertainty modeling}
+We can define the uncertain parameters $a, b, c$ using \verb|ureal| command.
+\begin{lstlisting}
+% definition
+a = ureal('a', 11, 'PlusMinus', 1);
+b = ureal('b', 4, 'PlusMinus', 1);
+c = ureal('c', 9, 'PlusMinus', 2);
+\end{lstlisting}
+Now we can define the uncertain LTI system using the uncertain parameters
+\begin{lstlisting}
+gs = tf([a], [1, b, c]);
+\end{lstlisting}
 
+Then we obtain the step response by using \verb|step|~\\~\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{1_3_step.png}
+\end{figure}
+
+then observe the Bode Diagram by using \verb|bode|~\\~\\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{1_3_bode.png}
+\end{figure}
+~\\~\\
+
+And then observe the Nyquist Diagram by using \verb|Nyquist|~\\~\\~\\~\\
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.5\linewidth]{1_3_nyquist.png}
+\end{figure}
+
+We can see that when the model parameters $a$, $b$, and $c$ are uncertain, the step response and frequency response characteristics of the model are also uncertain.
+
+However, we can find the multimodel uncertainty sets by using command \verb|usample|.
+
+\begin{lstlisting}
+var_set = ['a', 'b', 'c'];
+g_set20 = usample(gs, var_set, 20);
+g_set200 = usample(gs, var_set, 200);
+\end{lstlisting}
+
+Then we can get the two weighting filters and compare them in Bode Diagram. The set with 200 samples seems to have a larger gain than that with 20 samples.
+\begin{lstlisting}
+W20_1 = info20.W1;
+W200_1 = info200.W1;
+
+bode(W20_1)
+hold on
+bode(W200_1)
+legend({'20 samples','200 samples'},'Location','southwest')
+\end{lstlisting}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.45\linewidth]{1_3_ucover.png}
+\end{figure}
 
 \end{document}
+
